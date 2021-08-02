@@ -3,10 +3,10 @@
     region: "ap-south-1"
     image_id: "ami-08e0ca9924195beba"
     instance_type: "t2.micro"
-    vpc_subnet_id: "subnet-dde89791"
+    vpc_subnet_id: "subnet-0f4a5667"
     name: "k8s-master"
-    security_group: "sg-ddd604ba"
-    key_name: "awskey"
+    security_group: "sg-0515364a733b2b12f"
+    key_name: "demo"
     aws_access_key:  "{{ access_key }}"
     aws_secret_key: "{{ secret_key }}"
     state: present
@@ -17,10 +17,10 @@
     region: "ap-south-1"
     image_id: "ami-08e0ca9924195beba"
     instance_type: "t2.micro"
-    vpc_subnet_id: "subnet-dde89791"
+    vpc_subnet_id: "subnet-0f4a5667"
     name: "k8s-node1"
-    security_group: "sg-ddd604ba"
-    key_name: "awskey"
+    security_group: "sg-0515364a733b2b12f"
+    key_name: "demo"
     aws_access_key: "{{ access_key }}"
     aws_secret_key: "{{ secret_key }}"
     state: present
@@ -30,27 +30,28 @@
     region: "ap-south-1"
     image_id: "ami-08e0ca9924195beba"
     instance_type: "t2.micro"
-    vpc_subnet_id: "subnet-dde89791"
+    vpc_subnet_id: "subnet-0f4a5667"
     name: "k8s-node2"
-    security_group: "sg-ddd604ba"
-    key_name: "awskey"
+    security_group: "sg-0515364a733b2b12f"
+    key_name: "demo"
     aws_access_key: "{{ access_key }}"
     aws_secret_key: "{{ secret_key }}"
     state: present
   register: node2
   
 - name: Updating ansible inventory for k8s cluster
+  become: true
   blockinfile:
     path: /etc/ansible/hosts
     block: |
       [master]
-        {{  master.instances[0].public_ip_address }} ansible_user=ec2-user ansible_ssh_private_key_file=/root/awskey.pem
+        {{  master.instances[0].private_ip_address }} ansible_user=ec2-user ansible_ssh_private_key_file=/home/ec2-user/demo.pem
 
       [node]
 
-        {{  node1.instances[0].public_ip_address }} ansible_user=ec2-user ansible_ssh_private_key_file=/root/awskey.pem
+        {{  node1.instances[0].private_ip_address }} ansible_user=ec2-user ansible_ssh_private_key_file=/home/ec2-user/demo.pem
 
-        {{  node2.instances[0].public_ip_address }} ansible_user=ec2-user ansible_ssh_private_key_file=/root/awskey.pem
+        {{  node2.instances[0].private_ip_address }} ansible_user=ec2-user ansible_ssh_private_key_file=/home/ec2-user/demo.pem
 
 
 

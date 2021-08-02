@@ -1,7 +1,7 @@
 - hosts: master
   roles:
-          - role: kube-master
+          - role: /home/ec2-user/kubernetes-multi-node-cluster-over-aws/kube-master
 
 - hosts: node
   roles:
-          - role: kube-nodes
+          - role: /home/ec2-user/kubernetes-multi-node-cluster-over-aws/kube-nodes

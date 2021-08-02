@@ -1,5 +1,5 @@
 - hosts: localhost
   roles:
-          - role: ec2-instance
+          - role: /home/ec2-user/kubernetes-multi-node-cluster-over-aws/ec2-instance
 
 

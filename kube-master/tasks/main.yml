@@ -1,25 +1,32 @@
 ---
 # tasks file for kube-master
 - name: Configuring yum repository for kubernetes
+  #gather_facts: yes
+  become: yes
   yum_repository:
     name: kubernetes
     description: Yum for k8s
-    baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
+    baseurl: http://yum.kubernetes.io/repos/kubernetes-el7-x86_64
     enabled: yes
     gpgcheck: yes
     repo_gpgcheck: yes
-    gpgkey: https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+    gpgkey: 
+        - https://packages.cloud.google.com/yum/doc/yum-key.gpg
+        - https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 
 - name: Installing needed packages
+  become: yes
   package:
     name: "{{ item }}"
     state: present
   loop:
-    - "kubeadm"
-    - "docker"
-    - "iproute-tc"
+    - kubelet
+    - kubeadm
+    - kubectl
+    - docker
 
 - name: Enable docker and kubectl services 
+  become: yes
   service:
     name: "{{ item }}"
     state: started
@@ -28,53 +35,45 @@
     - kubelet
     - docker
 
-- name: Pulling docker images for cluster
-  command: kubeadm config images pull
+      #- name: Pulling docker images for cluster
+      #command: kubeadm config images pull
 
-- name: updating systemd driver
-  copy:
-    dest: /etc/docker/daemon.json
-    src: daemon.json
+      #- name: updating systemd driver
+      #become: yes
+      #copy:
+      #dest: /etc/docker/daemon.json
+      #src: daemon.json
 
-- name: restarting docker services
-  service:
-    name: docker
-    state: restarted
+      #- name: restarting docker services
+      #become: yes
+      #service:
+      #name: docker
+      #state: restarted
 
 
 - name: initialising kubeadm
-  shell: 
-    cmd: "kubeadm init --pod-network-cidr=10.244.0.0/16 --iignore-preflight-errors=NumCPU --ignore-preflight-errors=Mem"
-  ignore_errors: yes
+  shell: kubeadm init --pod-network-cidr 192.168.0.0/16 --service-cidr 192.168.2.0/24
+  register: output
 
-- name: creating .kube directory
-  file:
-    path: $HOME/.kube
-    state: directory
+- name: Storing Logs and Generated token for future purpose.
+  local_action: copy content={{ output.stdout }} dest="./token.txt"
 
-- name: Duplicate Folder Deletion
-  file:
-        path: "$HOME/.kube/config"
-        state: absent
-  ignore_errors: yes
-- name: commands
-  shell:
-      cmd: "{{ item.command }}"
+- name: Copying required files
+  shell: |
+     mkdir -p $HOME/.kube
+     sudo cp -f /etc/kubernetes/admin.conf $HOME/.kube/config
+     sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
-  loop:
-  - {   command: "cp -i /etc/kubernetes/admin.conf $HOME/.kube/config"   }
-  - {   command: "sudo chown $(id -u):$(id -g) $HOME/.kube/config"   }
 - name: setup flannel
-  shell:
-          cmd:  "kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml"  
+  shell: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml  
   ignore_errors: yes
 
-- name: Creating Token for worker node
-  shell:
-    cmd: "kubeadm token create --print-join-command"
-  register: token
+  #- name: Creating Token for worker node
+  #shell:
+  # cmd: "kubeadm token create --print-join-command"
+  #register: token
    
 
-- name: Save the token in local file
-  local_action: copy content={{ token.stdout }} dest=./token.txt
+  #- name: Save the token in local file
+  #local_action: copy content={{ token.stdout }} dest=./token.txt
 
