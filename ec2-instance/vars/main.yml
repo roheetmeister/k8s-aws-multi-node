@@ -1,4 +1,4 @@
 ---
-# vars file for ec2-instance
+# Define your access and secret keys in variable
 access_key: "access_key_ID"
 secret_key: "secret_key_ID"
