@@ -1,11 +1,11 @@
 - name: Launch instance for Kubernetes Master
   ec2_instance:
     region: "ap-south-1"
-    image_id: "ami-08e0ca9924195beba"
+    image_id: "{{ ami_id }}"
     instance_type: "t2.micro"
-    vpc_subnet_id: "subnet-0f4a5667"
+    vpc_subnet_id: "{{ subnet_id }}"
     name: "k8s-master"
-    security_group: "sg-0515364a733b2b12f"
+    security_group: "{{ sg_id }}"
     key_name: "demo"
     aws_access_key:  "{{ access_key }}"
     aws_secret_key: "{{ secret_key }}"
@@ -15,11 +15,11 @@
 - name: Launch instance for Kubernetes worker node 
   ec2_instance:
     region: "ap-south-1"
-    image_id: "ami-08e0ca9924195beba"
+    image_id: "{{ ami_id }}"
     instance_type: "t2.micro"
-    vpc_subnet_id: "subnet-0f4a5667"
+    vpc_subnet_id: "{{ subnet_id }}"
     name: "k8s-node1"
-    security_group: "sg-0515364a733b2b12f"
+    security_group: "{{ sg_id }}"
     key_name: "demo"
     aws_access_key: "{{ access_key }}"
     aws_secret_key: "{{ secret_key }}"
@@ -28,11 +28,11 @@
 - name: Launch instance for Kubernetes worker node
   ec2_instance:
     region: "ap-south-1"
-    image_id: "ami-08e0ca9924195beba"
+    image_id: "{{ ami_id }}"
     instance_type: "t2.micro"
-    vpc_subnet_id: "subnet-0f4a5667"
+    vpc_subnet_id: "{{ subnet_id }}"
     name: "k8s-node2"
-    security_group: "sg-0515364a733b2b12f"
+    security_group: "{{ sg_id }}"
     key_name: "demo"
     aws_access_key: "{{ access_key }}"
     aws_secret_key: "{{ secret_key }}"
