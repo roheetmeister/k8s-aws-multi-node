@@ -2,3 +2,6 @@
 # Define your access and secret keys in variable
 access_key: "access_key_ID"
 secret_key: "secret_key_ID"
+ami_id: "ami-08e0ca9924195beba"
+subnet_id: "subnet-0f4a5667"
+sg_id: "sg-0515364a733b2b12f"
