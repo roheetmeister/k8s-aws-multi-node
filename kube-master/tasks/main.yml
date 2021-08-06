@@ -52,7 +52,7 @@
 
 
 - name: initialising kubeadm
-  shell: kubeadm init --pod-network-cidr 192.168.0.0/16 --service-cidr 192.168.2.0/24
+  shell: kubeadm init --pod-network-cidr 192.168.0.0/16 --service-cidr 192.168.2.0/24 --ignore-preflight-errors all
   register: output
 
 - name: Storing Logs and Generated token for future purpose.
