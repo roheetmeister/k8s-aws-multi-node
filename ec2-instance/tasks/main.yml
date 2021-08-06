@@ -2,7 +2,7 @@
   ec2_instance:
     region: "ap-south-1"
     image_id: "{{ ami_id }}"
-    instance_type: "t2.micro"
+    instance_type: "t2.medium""
     vpc_subnet_id: "{{ subnet_id }}"
     name: "k8s-master"
     security_group: "{{ sg_id }}"
