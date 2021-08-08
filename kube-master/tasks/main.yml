@@ -1,7 +1,7 @@
 ---
 # tasks file for kube-master
 - name: Configuring yum repository for kubernetes
-  gather_facts: yes
+  #gather_facts: yes
   become: yes
   yum_repository:
     name: kubernetes
@@ -10,7 +10,7 @@
     enabled: yes
     gpgcheck: yes
     repo_gpgcheck: yes
-    gpgkey: 
+    gpgkey:
         - https://packages.cloud.google.com/yum/doc/yum-key.gpg
         - https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 
@@ -25,7 +25,7 @@
     - kubectl
     - docker
 
-- name: Enable docker and kubectl services 
+- name: Enable docker and kubectl services
   become: yes
   service:
     name: "{{ item }}"
@@ -38,18 +38,17 @@
       #- name: Pulling docker images for cluster
       #command: kubeadm config images pull
 
-      #- name: updating systemd driver
-      #become: yes
-      #copy:
-      #dest: /etc/docker/daemon.json
-      #src: daemon.json
+- name: updating systemd driver
+  become: yes
+  copy:
+    dest: /etc/docker/daemon.json
+    src: /home/ec2-user/k8s-aws-multi-node/calling-role/daemon.json
 
-      #- name: restarting docker services
-      #become: yes
-      #service:
-      #name: docker
-      #state: restarted
-
+- name: restarting docker services
+  become: yes
+  service:
+     name: docker
+     state: restarted
 
 - name: initialising kubeadm
   become: yes
@@ -60,24 +59,33 @@
   become: yes
   local_action: copy content={{ output.stdout }} dest="./token.txt"
 
+- name: "Converting file in .sh"
+  become: yes
+  local_action: shell sed -n 67,68p /root/token.txt > join.sh
+
+  #- name: "Granting permission to script"
+  #become: yes
+  #ansible.builtin.file:
+  # path: /root/join.sh
+  # mode: '0755'
+
 - name: Copying required files
   become: yes
   shell: |
-     mkdir -p $HOME/.kube
-     cp -f /etc/kubernetes/admin.conf $HOME/.kube/config
-     chown $(id -u):$(id -g) $HOME/.kube/config
+    mkdir -p $HOME/.kube
+    cp -f /etc/kubernetes/admin.conf $HOME/.kube/config
+    chown $(id -u):$(id -g) $HOME/.kube/config
 
 - name: setup flannel
   become: yes
-  shell: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml  
+  shell: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
   ignore_errors: yes
 
   #- name: Creating Token for worker node
   #shell:
   # cmd: "kubeadm token create --print-join-command"
   #register: token
-   
+
 
   #- name: Save the token in local file
   #local_action: copy content={{ token.stdout }} dest=./token.txt
-
