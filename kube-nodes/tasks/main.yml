@@ -1,6 +1,7 @@
 ---
 # tasks file for kube-nodes
 - name: Configuring Yum repo for k8s
+  become: yes
   yum_repository:
     name: kubernetes
     description: Yum for k8s
@@ -11,6 +12,7 @@
     gpgkey: https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 
 - name: installation of kubeadm viz kubectl & kubelet, docker and tc
+  become: yes
   package:
     name: "{{ item }}"
     state: present
@@ -20,6 +22,7 @@
     - "iproute-tc"
 
 - name: enabling services for docker and kubelet
+  become: yes
   service:
     name: "{{ item }}"
     state: started
@@ -29,33 +32,40 @@
     - docker
 
 - name: updating systemd driver
+  become: yes
   copy:
     dest: /etc/docker/daemon.json
     src: daemon.json
 
 - name: restarting docker services
+  become: yes
   service:
     name: docker
     state: restarted
 
 - name: updating k8s config file
+  become: yes
   copy:
     dest: /etc/sysctl.d/k8s.conf
     src: k8s.conf
 
 - name: restarting sysctl
+  become: yes
   command: sysctl --system
 
 - name: "kubeadm reset..."
+  become: yes
   shell:
           cmd: "echo y | kubeadm reset"
   
 - name: "Copying token in the worker node"
+  become: yes
   copy:
           src: "token.txt"
           dest: "/root/token.txt"
 
 - name: "Join worker node with master"
+  become: yes
   shell:
           cmd: "bash /root/token.txt"
   ignore_errors: yes
