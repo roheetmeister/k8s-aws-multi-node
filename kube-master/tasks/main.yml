@@ -1,5 +1,5 @@
 ---
-# tasks file for kube-master
+  # tasks file for kube-master
 - name: Configuring yum repository for kubernetes
   #gather_facts: yes
   become: yes
@@ -35,9 +35,6 @@
     - kubelet
     - docker
 
-      #- name: Pulling docker images for cluster
-      #command: kubeadm config images pull
-
 - name: updating systemd driver
   become: yes
   copy:
@@ -61,13 +58,8 @@
 
 - name: "Converting file in .sh"
   become: yes
+  #Copy the kubeadm join command from token file and redirect to join.sh file
   local_action: shell sed -n 67,68p /root/token.txt > join.sh
-
-  #- name: "Granting permission to script"
-  #become: yes
-  #ansible.builtin.file:
-  # path: /root/join.sh
-  # mode: '0755'
 
 - name: Copying required files
   become: yes
@@ -80,12 +72,3 @@
   become: yes
   shell: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
   ignore_errors: yes
-
-  #- name: Creating Token for worker node
-  #shell:
-  # cmd: "kubeadm token create --print-join-command"
-  #register: token
-
-
-  #- name: Save the token in local file
-  #local_action: copy content={{ token.stdout }} dest=./token.txt
