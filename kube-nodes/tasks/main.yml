@@ -35,7 +35,7 @@
   become: yes
   copy:
     dest: /etc/docker/daemon.json
-    src: daemon.json
+    src: /home/ec2-user/k8s-aws-multi-node/calling-role/daemon.json
 
 - name: restarting docker services
   become: yes
@@ -47,7 +47,7 @@
   become: yes
   copy:
     dest: /etc/sysctl.d/k8s.conf
-    src: k8s.conf
+    src: /home/ec2-user/k8s-aws-multi-node/calling-role/k8s.conf
 
 - name: restarting sysctl
   become: yes
@@ -57,15 +57,24 @@
   become: yes
   shell:
           cmd: "echo y | kubeadm reset"
-  
+
 - name: "Copying token in the worker node"
   become: yes
   copy:
-          src: "token.txt"
-          dest: "/root/token.txt"
+          dest: "/root/join.sh"
+          src: "/home/ec2-user/k8s-aws-multi-node/calling-role/join.sh"
+
+          #- name: "Conervting token file in .sh"
+          # become: yes
+          # shell: sed -n 67,68p token.txt > join.sh
+- name: "Granting permission to script"
+  become: yes
+  ansible.builtin.file:
+      path: /root/join.sh
+      mode: '0755'
+
 
 - name: "Join worker node with master"
   become: yes
-  shell:
-          cmd: "bash /root/token.txt"
-  ignore_errors: yes
+  ansible.builtin.script:
+        cmd: ./join.sh
