@@ -64,15 +64,11 @@
           dest: "/root/join.sh"
           src: "/home/ec2-user/k8s-aws-multi-node/calling-role/join.sh"
 
-          #- name: "Conervting token file in .sh"
-          # become: yes
-          # shell: sed -n 67,68p token.txt > join.sh
 - name: "Granting permission to script"
   become: yes
   ansible.builtin.file:
       path: /root/join.sh
       mode: '0755'
-
 
 - name: "Join worker node with master"
   become: yes
