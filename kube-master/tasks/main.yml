@@ -1,7 +1,7 @@
 ---
 # tasks file for kube-master
 - name: Configuring yum repository for kubernetes
-  #gather_facts: yes
+  gather_facts: yes
   become: yes
   yum_repository:
     name: kubernetes
@@ -52,19 +52,23 @@
 
 
 - name: initialising kubeadm
+  become: yes
   shell: kubeadm init --pod-network-cidr 192.168.0.0/16 --service-cidr 192.168.2.0/24 --ignore-preflight-errors all
   register: output
 
 - name: Storing Logs and Generated token for future purpose.
+  become: yes
   local_action: copy content={{ output.stdout }} dest="./token.txt"
 
 - name: Copying required files
+  become: yes
   shell: |
      mkdir -p $HOME/.kube
-     sudo cp -f /etc/kubernetes/admin.conf $HOME/.kube/config
-     sudo chown $(id -u):$(id -g) $HOME/.kube/config
+     cp -f /etc/kubernetes/admin.conf $HOME/.kube/config
+     chown $(id -u):$(id -g) $HOME/.kube/config
 
 - name: setup flannel
+  become: yes
   shell: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml  
   ignore_errors: yes
 
